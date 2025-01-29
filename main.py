@@ -12,6 +12,8 @@ from nltk.tokenize import word_tokenize
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
+import matplotlib.pyplot as plt
+
 
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -19,19 +21,19 @@ nltk.download('vader_lexicon')
 
 
 # Clean and preprocess text
-def clean_text(text):
-    # Remove special characters (but keep numbers)
-    text = re.sub(r'[^\w\s]', '', text)
-
-    # Convert to lowercase
-    text = text.lower()
-
-    # Remove stopwords
-    stop_words = set(stopwords.words('english'))
-    word_tokens = word_tokenize(text)
-    filtered_text = [word for word in word_tokens if word not in stop_words]
-
-    return ' '.join(filtered_text)
+# def clean_text(text):
+#     # Remove special characters (but keep numbers)
+#     text = re.sub(r'[^\w\s]', '', text)
+#
+#     # Convert to lowercase
+#     text = text.lower()
+#
+#     # Remove stopwords
+#     stop_words = set(stopwords.words('english'))
+#     word_tokens = word_tokenize(text)
+#     filtered_text = [word for word in word_tokens if word not in stop_words]
+#
+#     return ' '.join(filtered_text)
 
 
 # Perform sentiment analysis using textblob
@@ -84,3 +86,26 @@ df["sentiment"] = df["title"].apply(lambda x: sia.polarity_scores(x)["compound"]
 df["sentiment_label"] = df["sentiment"].apply(lambda x: "Positive" if x > 0.05 else ("Negative" if x < -0.05 else "Neutral"))
 
 print(df['sentiment_label'])
+
+# Count sentiment categories
+sentiment_counts = df["sentiment_label"].value_counts()
+
+# Create a pie chart
+plt.figure(figsize=(6, 6))
+plt.pie(
+    sentiment_counts,
+    labels=sentiment_counts.index,
+    autopct='%1.1f%%',
+    startangle=140,
+    wedgeprops={'edgecolor': 'black'}
+)
+plt.title("Sentiment Analysis of Forbes News Titles")
+plt.show()
+
+# Create a bar chart
+plt.figure(figsize=(8, 5))
+plt.bar(sentiment_counts.index, sentiment_counts.values, color=["green", "gray", "red"])
+plt.xlabel("Sentiment")
+plt.ylabel("Count")
+plt.title("Sentiment Distribution of Forbes News Titles")
+plt.show()
