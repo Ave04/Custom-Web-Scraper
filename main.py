@@ -104,7 +104,7 @@ plt.show()
 
 # Create a bar chart
 plt.figure(figsize=(8, 5))
-plt.bar(sentiment_counts.index, sentiment_counts.values, color=["green", "gray", "red"])
+plt.bar(sentiment_counts.index, sentiment_counts.values, color=["red", "gray", "green"])
 plt.xlabel("Sentiment")
 plt.ylabel("Count")
 plt.title("Sentiment Distribution of Forbes News Titles")
