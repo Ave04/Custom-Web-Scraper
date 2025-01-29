@@ -10,10 +10,12 @@ import re
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 
 nltk.download('stopwords')
 nltk.download('punkt')
+nltk.download('vader_lexicon')
 
 
 # Clean and preprocess text
@@ -32,10 +34,16 @@ def clean_text(text):
     return ' '.join(filtered_text)
 
 
+# Perform sentiment analysis using textblob
+def get_sentiment(text):
+    analysis = TextBlob(text)
+    return analysis.sentiment.polarity  # Returns a polarity score between -1 (negative) and 1 (positive)
+
+
 url_site = 'https://www.forbes.com/'
 
-response = requests.get(url=url_site)
-soup = BeautifulSoup(response.text, 'html.parser')
+# response = requests.get(url=url_site)
+# soup = BeautifulSoup(response.text, 'html.parser')
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("detach", True)
@@ -60,7 +68,19 @@ df = pd.DataFrame(article_data)
 df.to_csv('forbes_articles.csv', index=False)
 
 df.columns = ["title"]  # Assign a proper column name
-print(df.head())  # Check the structure
+print(df.columns)  # Check the structure
 
+# clean title if needed
 # df["cleaned_title"] = df["title"].apply(clean_text)
 
+
+# Initialize VADER sentiment analyzer
+sia = SentimentIntensityAnalyzer()
+
+# Apply sentiment analysis
+df["sentiment"] = df["title"].apply(lambda x: sia.polarity_scores(x)["compound"])
+
+# Classify as Positive, Neutral, or Negative
+df["sentiment_label"] = df["sentiment"].apply(lambda x: "Positive" if x > 0.05 else ("Negative" if x < -0.05 else "Neutral"))
+
+print(df['sentiment_label'])
